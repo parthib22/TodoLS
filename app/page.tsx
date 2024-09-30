@@ -1,10 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-
+interface TodoItem {
+  id: number;
+  todo: string;
+  check: boolean;
+}
 export default function Home() {
-  const [list, setList] = useState<
-    { id: number; todo: string; check: boolean }[]
-  >(() => {
+  const [list, setList] = useState<TodoItem[]>(() => {
     const storedList = localStorage.getItem("TODO_LIST");
     return storedList ? JSON.parse(storedList) : {};
   });
