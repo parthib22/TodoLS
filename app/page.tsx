@@ -6,78 +6,67 @@ interface TodoItem {
   check: boolean;
 }
 export default function Home() {
-  const [list, setList] = useState<TodoItem[]>(() => {
-    const storedList = localStorage.getItem("TODO_LIST");
-    return storedList ? JSON.parse(storedList) : {};
-  });
-  // const [checked, setChecked] = useState({});
+  const [list, setList] = useState<TodoItem[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // useEffect(() => {
-  //   setList(() => {
-  //     const storedList = localStorage.getItem("TODO_LIST");
-  //     return storedList ? JSON.parse(storedList) : {};
-  //   });
-  // }, []);
+  // Load data from localStorage after component mounts (client-side only)
+  useEffect(() => {
+    const storedList = localStorage.getItem("TODO_LIST");
+    if (storedList) {
+      setList(JSON.parse(storedList));
+    }
+    setIsLoaded(true);
+  }, []);
 
   console.log("list: ", list);
 
+  // Save to localStorage whenever list changes (only after initial load)
   useEffect(() => {
-    localStorage.setItem("TODO_LIST", JSON.stringify(list));
-  }, [list]);
+    if (isLoaded) {
+      localStorage.setItem("TODO_LIST", JSON.stringify(list));
+    }
+  }, [list, isLoaded]);
 
-  // useEffect(() => {
-  //   setChecked(() => {
-  //     const checkedList = JSON.parse(localStorage.getItem("checkStatus"));
-  //     return checkedList || [];
-  //   });
-  // }, []);
-
-  // console.log("checked: ", checked);
-
-  // useEffect(() => {
-  //   localStorage.setItem("checkStatus", JSON.stringify(checked));
-  // }, [checked]);
-
-  const addItem = (item: any) => {
+  const addItem = (item: string) => {
     if (item.trim() !== "") {
       setList((prev) => [
         ...prev,
         {
-          id: prev.length + 1,
+          id: Date.now(), // Use timestamp for unique ID
           todo: item.trim(),
           check: false,
         },
       ]);
     }
-    console.log(list);
-  };
-  const handleKey = (e: any) => {
-    if (e.keyCode === 13) {
-      addItem(e.target.value);
-      e.target.value = "";
-    }
-  };
-  const delItem = (index: any) => {
-    const updatedList = list.filter((_, k) => k !== index);
-    setList(updatedList);
-    console.log(list);
-    // setChecked((prevChecked) => {
-    //   const newChecked = { ...prevChecked };
-    //   delete newChecked[index];
-    //   return newChecked;
-    // });
   };
 
-  const isChecked = (index: any) => {
+  const addItemFromInput = () => {
+    const inputElement = document.getElementById("ip") as HTMLInputElement;
+    if (inputElement && inputElement.value.trim() !== "") {
+      addItem(inputElement.value);
+      inputElement.value = "";
+    }
+  };
+
+  const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      const target = e.target as HTMLInputElement;
+      addItem(target.value);
+      target.value = "";
+    }
+  };
+  const delItem = (id: number) => {
+    const updatedList = list.filter((item) => item.id !== id);
+    setList(updatedList);
+    console.log(list);
+  };
+
+  const isChecked = (index: number) => {
     setList((prev) =>
       prev.map((item, i) =>
-        i == index ? { ...item, check: !item.check } : item
+        i === index ? { ...item, check: !item.check } : item
       )
     );
-    // setChecked((prevChecked) => ({
-    //   ...prevChecked,
-    //   [index]: !prevChecked[index],
-    // }));
   };
 
   return (
@@ -91,20 +80,17 @@ export default function Home() {
           onKeyDown={handleKey}
         />
       </div>
-      {/* <button
-        onClick={addItem}
-        className="todoAddBtn"
-      >
+      <button onClick={addItemFromInput} className="todoAddBtn">
         Add
-      </button> */}
+      </button>
       <h2>
         {list.length > 0
-          ? list.length + (list.length == 1 ? " task:" : " tasks:")
+          ? list.length + (list.length === 1 ? " task:" : " tasks:")
           : "No tasks pending."}
       </h2>
       <ul>
         {list.map((item, i) => (
-          <li className="todoList" key={i}>
+          <li className="todoList" key={item.id}>
             <input
               className="checkStatus"
               type="checkbox"
@@ -119,7 +105,7 @@ export default function Home() {
             >
               {item.todo}
             </span>
-            <button onClick={() => delItem(i)} className="todoDelBtn">
+            <button onClick={() => delItem(item.id)} className="todoDelBtn">
               Delete
             </button>
           </li>
