@@ -25,8 +25,8 @@ body::-webkit-scrollbar {
   padding: 30px;
   padding-bottom: 0px;
   height: 100vh;
-  background-color: #111;
-  color: white;
+  background-color: #eee;
+  color: black;
 }
 
 .todo > div {
@@ -70,18 +70,15 @@ body::-webkit-scrollbar {
 
 .todoAddBtn {
   padding: 12.5px;
-  margin-inline: 3px;
   border: none;
   color: white;
   background-color: rgba(0 100 0 / 0.8);
   cursor: pointer;
   position: relative;
-  top: -7px;
   border-radius: 2px;
 }
 
 .todo h2 {
-  color: rgb(255 255 255 / 0.9);
   width: 100%;
   display: flex;
   align-items: center;
