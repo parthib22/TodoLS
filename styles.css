@@ -17,10 +17,6 @@ body {
   padding: 0;
 }
 
-body::-webkit-scrollbar {
-  display: none;
-}
-
 .todo {
   padding: 30px;
   padding-bottom: 0px;
